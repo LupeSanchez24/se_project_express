@@ -1,0 +1,11 @@
+const NO_CONTENT = 204;
+const BAD_REQUEST = 400;
+const NOT_FOUND = 404;
+const INTERNAL_SURVER_ERROR = 500;
+
+module.exports = {
+  NO_CONTENT,
+  BAD_REQUEST,
+  NOT_FOUND,
+  INTERNAL_SURVER_ERROR,
+};
