@@ -4,6 +4,7 @@ const {
   NO_CONTENT,
   BAD_REQUEST,
   INTERNAL_SURVER_ERROR,
+  NOT_FOUND,
 } = require("../utils/erros");
 
 /*const createItem = (req, res) => {
@@ -109,8 +110,11 @@ const likeItem = (req, res) => {
     .orFail()
     .then((item) => res.status(200).send(item))
     .catch((err) => {
-      console.error("Error:", err);
-      if (err.name === "BADREQUEST") {
+      console.error(err);
+      if (err.name === "DocumentNotFoundError") {
+        return res.status(NOT_FOUND).send({ message: err.message });
+      }
+      if (err.name == "CastError") {
         return res.status(BAD_REQUEST).send({ message: err.message });
       }
       return res.status(INTERNAL_SURVER_ERROR).send({ message: err.message });
@@ -125,10 +129,15 @@ const unlikeItem = (req, res) => {
   )
     .orFail() // Call orFail() after the query
     .then(() => res.status(NO_CONTENT).send({}))
-    .catch((e) => {
-      res
-        .status(INTERNAL_SURVER_ERROR) // Fixed the spelling here
-        .send({ message: "Error from unlikeItem", e });
+    .catch((err) => {
+      console.error(err);
+      if (err.name === "DocumentNotFoundError") {
+        return res.status(NOT_FOUND).send({ message: err.message });
+      }
+      if (err.name == "CastError") {
+        return res.status(BAD_REQUEST).send({ message: err.message });
+      }
+      return res.status(INTERNAL_SURVER_ERROR).send({ message: err.message });
     });
 };
 
