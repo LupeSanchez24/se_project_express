@@ -7,23 +7,6 @@ const {
   NOT_FOUND,
 } = require("../utils/erros");
 
-/*const createItem = (req, res) => {
-  console.log(req);
-  console.log(req.body);
-
-  const owner = req.user._id;
-  const { name, weather, imageURL } = req.body;
-
-  ClothingItem.create({ name, weather, imageURL, owner })
-    .then((item) => {
-      console.log(item);
-      res.send({ data: item });
-    })
-    .catch((e) => {
-      res.status(500).send({ message: "Error from createItem", e });
-    });
-};*/
-
 const createItem = (req, res) => {
   console.log(req);
   console.log(req.body);
@@ -84,19 +67,6 @@ const deleteItem = (req, res) => {
   );
 };
 
-/*const likeItem = (req, res) => {
-  ClothingItem.findByIdAndUpdate(
-    req.params.itemId,
-    { $addToSet: { likes: req.user._id } },
-    { new: true }
-      .orFail()
-      .then(() => res.status(200).send({}))
-      .catch((e) => {
-        res.status(500).send({ message: "Error from likeItem", e });
-      })
-  );
-};*/
-
 const likeItem = (req, res) => {
   console.log(req.params.itemId);
   const userId = req.user._id;
@@ -114,7 +84,7 @@ const likeItem = (req, res) => {
       if (err.name === "DocumentNotFoundError") {
         return res.status(NOT_FOUND).send({ message: err.message });
       }
-      if (err.name == "CastError") {
+      if (err.name === "CastError") {
         return res.status(BAD_REQUEST).send({ message: err.message });
       }
       return res.status(INTERNAL_SURVER_ERROR).send({ message: err.message });
@@ -124,17 +94,17 @@ const likeItem = (req, res) => {
 const unlikeItem = (req, res) => {
   ClothingItem.findByIdAndUpdate(
     req.params.itemId,
-    { $pull: { likes: req.user._id } }, // remove _id from the array
+    { $pull: { likes: req.user._id } },
     { new: true }
   )
-    .orFail() // Call orFail() after the query
+    .orFail()
     .then(() => res.status(NO_CONTENT).send({}))
     .catch((err) => {
       console.error(err);
       if (err.name === "DocumentNotFoundError") {
         return res.status(NOT_FOUND).send({ message: err.message });
       }
-      if (err.name == "CastError") {
+      if (err.name === "CastError") {
         return res.status(BAD_REQUEST).send({ message: err.message });
       }
       return res.status(INTERNAL_SURVER_ERROR).send({ message: err.message });

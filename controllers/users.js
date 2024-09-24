@@ -1,4 +1,3 @@
-//const user = require("../models/user");
 const User = require("../models/user");
 
 const {
@@ -38,10 +37,11 @@ const getUser = (req, res) => {
 
     .catch((err) => {
       console.error(err);
-      //finish this
+
       if (err.name === "DocumentNotFoundError") {
         return res.status(NOT_FOUND).send({ message: err.message });
-      } else if (err.name === "CastError") {
+      }
+      if (err.name === "CastError") {
         return res.status(BAD_REQUEST).send({ message: err.message });
       }
       return res.status(INTERNAL_SURVER_ERROR).send({ message: err.message });
