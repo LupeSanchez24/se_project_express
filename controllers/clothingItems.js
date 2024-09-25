@@ -54,16 +54,13 @@ const deleteItem = (req, res) => {
 
   ClothingItem.findById(itemId)
     .orFail()
-    .then((item) => {
-      // Delete the item using its _id
-      return ClothingItem.deleteOne({ _id: itemId });
-    })
+    .then(() => ClothingItem.deleteOne({ _id: itemId }))
     .then(() => res.status(200).send({ message: "Item deleted successfully" }))
     .catch((err) => {
       if (err.name === "DocumentNotFoundError") {
         return res.status(404).send({ message: "Item not found" });
       }
-      return res.status(500).send({ message: err.message });
+      return res.status(400).send({ message: err.message });
     });
 };
 
