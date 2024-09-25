@@ -1,9 +1,8 @@
 const ClothingItem = require("../models/clothingItem");
 
 const {
-  NO_CONTENT,
   BAD_REQUEST,
-  INTERNAL_SURVER_ERROR,
+  INTERNAL_SERVER_ERROR,
   NOT_FOUND,
 } = require("../utils/erros");
 
@@ -23,7 +22,7 @@ const createItem = (req, res) => {
       if (err.name === "ValidationError") {
         return res.status(BAD_REQUEST).send({ message: err.message });
       }
-      return res.status(INTERNAL_SURVER_ERROR).send({ message: err.message });
+      return res.status(INTERNAL_SERVER_ERROR).send({ message: err.message });
     });
 };
 
@@ -32,7 +31,7 @@ const getItems = (req, res) => {
     .then((item) => res.status(200).send(item))
     .catch((e) => {
       res
-        .status(INTERNAL_SURVER_ERROR)
+        .status(INTERNAL_SERVER_ERROR)
         .send({ message: "Error from getItem", e });
     });
 };
@@ -45,7 +44,7 @@ const updateItem = (req, res) => {
     .then((item) => res.status(200).send({ data: item }))
     .catch((e) => {
       res
-        .status(INTERNAL_SURVER_ERROR)
+        .status(INTERNAL_SERVER_ERROR)
         .send({ message: "Error from updateItem", e });
     });
 };
@@ -53,18 +52,19 @@ const updateItem = (req, res) => {
 const deleteItem = (req, res) => {
   const { itemId } = req.params;
 
-  console.log(itemId);
-  ClothingItem.findByIdAndDelete(itemId).orFail(() =>
-    res
-      .then((item) => {
-        return res.status(200).send(item);
-      })
-      .catch((e) => {
-        res
-          .status(INTERNAL_SURVER_ERROR)
-          .send({ message: "Error from deleteItem", e });
-      })
-  );
+  ClothingItem.findById(itemId)
+    .orFail()
+    .then((item) => {
+      // Delete the item using its _id
+      return ClothingItem.deleteOne({ _id: itemId });
+    })
+    .then(() => res.status(200).send({ message: "Item deleted successfully" }))
+    .catch((err) => {
+      if (err.name === "DocumentNotFoundError") {
+        return res.status(404).send({ message: "Item not found" });
+      }
+      return res.status(500).send({ message: err.message });
+    });
 };
 
 const likeItem = (req, res) => {
@@ -87,7 +87,7 @@ const likeItem = (req, res) => {
       if (err.name === "CastError") {
         return res.status(BAD_REQUEST).send({ message: err.message });
       }
-      return res.status(INTERNAL_SURVER_ERROR).send({ message: err.message });
+      return res.status(INTERNAL_SERVER_ERROR).send({ message: err.message });
     });
 };
 
@@ -98,7 +98,7 @@ const unlikeItem = (req, res) => {
     { new: true }
   )
     .orFail()
-    .then(() => res.status(NO_CONTENT).send({}))
+    .then(() => res.status(200).send({}))
     .catch((err) => {
       console.error(err);
       if (err.name === "DocumentNotFoundError") {
@@ -107,7 +107,7 @@ const unlikeItem = (req, res) => {
       if (err.name === "CastError") {
         return res.status(BAD_REQUEST).send({ message: err.message });
       }
-      return res.status(INTERNAL_SURVER_ERROR).send({ message: err.message });
+      return res.status(INTERNAL_SERVER_ERROR).send({ message: err.message });
     });
 };
 
