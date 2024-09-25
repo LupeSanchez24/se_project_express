@@ -66,12 +66,10 @@ const deleteItem = (req, res) => {
 
 const likeItem = (req, res) => {
   console.log(req.params.itemId);
-  const userId = req.user._id;
-  const itemId = req.params.itemId;
 
   ClothingItem.findByIdAndUpdate(
-    itemId,
-    { $addToSet: { likes: userId } },
+    req.params.itemId,
+    { $addToSet: { likes: req.user._id } },
     { new: true }
   )
     .orFail()
