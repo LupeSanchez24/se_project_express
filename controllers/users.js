@@ -5,9 +5,9 @@ const {
   NOT_FOUND,
   INTERNAL_SERVER_ERROR,
   CONFLICT,
+  UNAUTHORIZEDERRORR,
 } = require("../utils/erros");
 
-const bcrypt = require("bcryptjs");
 const { JWT_SECRET } = "../utils/config.js";
 
 const getUsers = (req, res) => {
@@ -32,11 +32,12 @@ const getUsers = (req, res) => {
     });
 };*/
 
+const bcrypt = require("bcryptjs");
 const createUser = (req, res) => {
   const { name, avatar, email, password } = req.body;
 
   User.findOne({ email })
-    .select("+password")
+
     .then((existingEmail) => {
       if (existingEmail) {
         const error = new Error("Email already exists");
@@ -72,48 +73,32 @@ const createUser = (req, res) => {
 
 const login = (req, res) => {
   const { email, password } = req.body;
-  console.log("Login attempt for email:", email);
 
-  User.findUserByCredentials(email, password)
+  if (!email || !password) {
+    return res
+      .status(BAD_REQUEST)
+      .send({ message: "Email and password are required" });
+  }
+
+  return User.findUserByCredentials(email, password)
     .then((user) => {
-      console.log("User found in login controller:", user);
-
-      if (!user._id || !JWT_SECRET) {
-        console.error("User ID or JWT_SECRET is undefined");
-        return res.status(500).send({ message: "Internal server error" });
-      }
-
       const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
         expiresIn: "7d",
       });
-      console.log("JWT generated for user:", user.email);
-
-      res.status(200).send({ token });
+      res.send({ token });
     })
     .catch((err) => {
-      console.error("Login error:", err);
-      res.status(500).send({ message: "Internal server error" });
+      if (err.message === "Incorrect email or password") {
+        return res
+          .status(UNAUTHORIZEDERRORR)
+          .send({ message: "Incorrect email or password" });
+      }
+
+      return res
+        .status(INTERNAL_SERVER_ERROR)
+        .send({ message: "An error has occurred on the server" });
     });
 };
-
-/*const getUser = (req, res) => {
-  const { userId } = req.params;
-  User.findById(userId)
-    .orFail()
-    .then((user) => res.status(200).send(user))
-
-    .catch((err) => {
-      console.error(err);
-
-      if (err.name === "DocumentNotFoundError") {
-        return res.status(NOT_FOUND).send({ message: err.message });
-      }
-      if (err.name === "CastError") {
-        return res.status(BAD_REQUEST).send({ message: err.message });
-      }
-      return res.status(INTERNAL_SERVER_ERROR).send({ message: err.message });
-    });
-};*/
 
 const getCurrentUser = (req, res) => {
   const { id } = req.user;

@@ -9,11 +9,13 @@ const {
   unlikeItem,
 } = require("../controllers/clothingItems");
 
-router.post("/", createItem);
+const { auth } = require("../middlewares/auth");
+
+router.post("/", auth, createItem);
 
 router.get("/", getItems);
 
-router.put("/:itemId/likes", likeItem);
+router.put("/:itemId/likes", auth, likeItem);
 
 router.delete("/:itemId", deleteItem);
 
