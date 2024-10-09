@@ -4,6 +4,7 @@ const {
   BAD_REQUEST,
   INTERNAL_SERVER_ERROR,
   NOT_FOUND,
+  FORBIDDEN,
 } = require("../utils/erros");
 
 const createItem = (req, res) => {
@@ -43,8 +44,19 @@ const deleteItem = (req, res) => {
 
   ClothingItem.findById(itemId)
     .orFail()
-    .then(() => ClothingItem.deleteOne({ _id: itemId }))
-    .then(() => res.status(200).send({ message: "Item deleted successfully" }))
+    .then((item) => {
+      if (String(item.owner) !== req.user._id) {
+        return res
+          .status(FORBIDDEN)
+          .send({ message: "Access to the requested resource is forbidden" });
+      }
+      return item
+        .deleteOne()
+        .then(() =>
+          res.status(200).send({ message: "Item deleted successfully" })
+        );
+    })
+
     .catch((err) => {
       if (err.name === "DocumentNotFoundError") {
         return res.status(NOT_FOUND).send({ message: err.message });

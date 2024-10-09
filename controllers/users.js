@@ -13,15 +13,6 @@ const {
 
 const { JWT_SECRET } = require("../utils/config");
 
-const getUsers = (req, res) => {
-  User.find({})
-    .then((users) => res.status(200).send(users))
-    .catch((err) => {
-      console.error(err);
-      return res.status(INTERNAL_SERVER_ERROR).send({ message: err.message });
-    });
-};
-
 const createUser = (req, res) => {
   const { name, avatar, email, password } = req.body;
 
@@ -88,8 +79,8 @@ const login = (req, res) => {
         return res.status(UNAUTHORIZEDERRORR).send({ message: err.message });
       }
       return res
-        .status(BAD_REQUEST)
-        .send({ message: "Invalid email/password combination" });
+        .status(INTERNAL_SERVER_ERROR)
+        .send({ message: "An error has occurred on the server" });
     });
 };
 
@@ -134,6 +125,9 @@ const updateUser = (req, res) => {
     .orFail()
     .then((user) => res.send({ name: user.name, avatar: user.avatar }))
     .catch((err) => {
+      if (err.name === "ValidationError") {
+        return res.status(BAD_REQUEST).send({ message: "Invalid user" });
+      }
       if (err.name === "DocumentNotFoundError") {
         return res.status(NOT_FOUND).send({ message: "User not found" });
       }
@@ -143,4 +137,4 @@ const updateUser = (req, res) => {
     });
 };
 
-module.exports = { getUsers, createUser, getCurrentUser, login, updateUser };
+module.exports = { createUser, getCurrentUser, login, updateUser };
