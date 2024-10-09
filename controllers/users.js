@@ -26,13 +26,14 @@ const createUser = (req, res) => {
   const { name, avatar, email, password } = req.body;
 
   if (!email || !password) {
-    return res.status(BAD_REQUEST).send({
+    res.status(BAD_REQUEST).send({
       message: "The 'email' and 'password' fields are required",
     });
+    return;
   }
 
   if (!validator.isEmail(email)) {
-    return res.status(400).send({ message: "Invalid email format" });
+    return res.status(BAD_REQUEST).send({ message: "Invalid email format" });
   }
 
   User.findOne({ email })

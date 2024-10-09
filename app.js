@@ -16,13 +16,6 @@ mongoose
 app.use(cors());
 app.use(express.json());
 
-app.use((req, res, next) => {
-  req.user = {
-    _id: "66f3367ac342a38ea3b4ef65",
-  };
-  next();
-});
-
 app.use("/", mainRouter);
 
 app.listen(PORT, () => {
