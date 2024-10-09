@@ -26,16 +26,13 @@ const createUser = (req, res) => {
   const { name, avatar, email, password } = req.body;
 
   if (!email || !password) {
-    res.status(BAD_REQUEST).send({
+    return res.status(BAD_REQUEST).send({
       message: "The 'email' and 'password' fields are required",
     });
-
-    return;
   }
 
   if (!validator.isEmail(email)) {
-    res.status(400).send({ message: "Invalid email format" });
-    return;
+    return res.status(400).send({ message: "Invalid email format" });
   }
 
   User.findOne({ email })
@@ -49,14 +46,15 @@ const createUser = (req, res) => {
       return bcrypt.hash(password, 10);
     })
     .then((hash) => {
-      User.create({ name, avatar, email, password: hash }).then((user) => {
-        res.status(201).send({
-          name: user.name,
-          avatar: user.avatar,
-          email: user.email,
-        });
-        return;
-      });
+      return User.create({ name, avatar, email, password: hash }).then(
+        (user) => {
+          res.status(201).send({
+            name: user.name,
+            avatar: user.avatar,
+            email: user.email,
+          });
+        }
+      );
     })
     .catch((err) => {
       if (err.code === 11000) {
