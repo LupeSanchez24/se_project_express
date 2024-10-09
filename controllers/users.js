@@ -34,8 +34,8 @@ const createUser = (req, res) => {
   }
 
   if (!validator.isEmail(email)) {
-   res.status(400).send({ message: "Invalid email format" });
-   return;
+    res.status(400).send({ message: "Invalid email format" });
+    return;
   }
 
   User.findOne({ email })
@@ -49,15 +49,14 @@ const createUser = (req, res) => {
       return bcrypt.hash(password, 10);
     })
     .then((hash) => {
-      return User.create({ name, avatar, email, password: hash }).then(
-        (user) => {
-          res.status(201).send({
-            name: user.name,
-            avatar: user.avatar,
-            email: user.email,
-          });
-        }
-      );
+      User.create({ name, avatar, email, password: hash }).then((user) => {
+        res.status(201).send({
+          name: user.name,
+          avatar: user.avatar,
+          email: user.email,
+        });
+        return;
+      });
     })
     .catch((err) => {
       if (err.code === 11000) {
@@ -99,7 +98,6 @@ const login = (req, res) => {
         .send({ message: "Invalid email/password combination" });
     });
 };
-
 
 const getCurrentUser = (req, res) => {
   const id = req.user._id;
@@ -145,7 +143,7 @@ const updateUser = (req, res) => {
       if (err.name === "DocumentNotFoundError") {
         return res.status(NOT_FOUND).send({ message: "User not found" });
       }
-      res
+      return res
         .status(INTERNAL_SERVER_ERROR)
         .send({ message: "Internal server error" });
     });
