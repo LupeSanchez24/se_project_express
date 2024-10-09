@@ -1,6 +1,7 @@
-const User = require("../models/user");
 const validator = require("validator");
 const jwt = require("jsonwebtoken");
+const bcrypt = require("bcryptjs");
+const User = require("../models/user");
 
 const {
   BAD_REQUEST,
@@ -21,7 +22,6 @@ const getUsers = (req, res) => {
     });
 };
 
-const bcrypt = require("bcryptjs");
 const createUser = (req, res) => {
   const { name, avatar, email, password } = req.body;
 
@@ -34,7 +34,8 @@ const createUser = (req, res) => {
   }
 
   if (!validator.isEmail(email)) {
-    return res.status(400).send({ message: "Invalid email format" });
+   res.status(400).send({ message: "Invalid email format" });
+   return;
   }
 
   User.findOne({ email })
@@ -89,7 +90,7 @@ const login = (req, res) => {
       res.status(200).send({ token });
     })
     .catch((err) => {
-      console.error(err); // Log the error to inspect it
+      console.error(err);
       if (err.message === "Incorrect email or password") {
         return res.status(UNAUTHORIZEDERRORR).send({ message: err.message });
       }
@@ -99,24 +100,6 @@ const login = (req, res) => {
     });
 };
 
-/*const getCurrentUser = (req, res) => {
-  const { id } = req.user;
-  User.findById(id)
-    .orFail()
-    .then((user) => res.send(user))
-    .catch((err) => {
-      if (err.name === "DocumentNotFoundError") {
-        return res.status(404).send({ message: "User not found" });
-      }
-      if (err.name === "CastError") {
-        return res
-          .status(400)
-          .send({ message: "User ID is not in valid format" });
-      }
-      console.error(err);
-      return res.status(500).send({ message: "Internal server error" });
-    });
-};*/
 
 const getCurrentUser = (req, res) => {
   const id = req.user._id;
