@@ -26,18 +26,16 @@ const createUser = (req, res) => {
   const { name, avatar, email, password } = req.body;
 
   if (!email || !password) {
-    res.status(BAD_REQUEST).send({
+    return res.status(BAD_REQUEST).send({
       message: "The 'email' and 'password' fields are required",
     });
-    return;
   }
 
   if (!validator.isEmail(email)) {
     return res.status(BAD_REQUEST).send({ message: "Invalid email format" });
   }
 
-  User.findOne({ email })
-
+  return User.findOne({ email })
     .then((existingEmail) => {
       if (existingEmail) {
         const error = new Error("Email already exists");
@@ -47,19 +45,18 @@ const createUser = (req, res) => {
       return bcrypt.hash(password, 10);
     })
     .then((hash) => {
-      return User.create({ name, avatar, email, password: hash }).then(
-        (user) => {
-          res.status(201).send({
-            name: user.name,
-            avatar: user.avatar,
-            email: user.email,
-          });
-        }
-      );
+      return User.create({ name, avatar, email, password: hash });
+    })
+    .then((user) => {
+      return res.status(201).send({
+        name: user.name,
+        avatar: user.avatar,
+        email: user.email,
+      });
     })
     .catch((err) => {
       if (err.code === 11000) {
-        return res.status(CONFLICT).send({ message: "Email already exist" });
+        return res.status(CONFLICT).send({ message: "Email already exists" });
       }
       console.error(err);
       if (err.name === "ValidationError") {
@@ -67,7 +64,7 @@ const createUser = (req, res) => {
       }
       return res
         .status(INTERNAL_SERVER_ERROR)
-        .send({ message: "An Error has occured on the server" });
+        .send({ message: "An error has occurred on the server" });
     });
 };
 
