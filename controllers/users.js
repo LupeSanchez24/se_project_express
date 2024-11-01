@@ -123,7 +123,7 @@ const updateUser = (req, res) => {
     { new: true, runValidators: true }
   )
     .orFail()
-    .then((user) => res.send({ name: user.name, avatar: user.avatar }))
+    .then((user) => res.send({ user }))
     .catch((err) => {
       if (err.name === "ValidationError") {
         return res.status(BAD_REQUEST).send({ message: "Invalid user" });
