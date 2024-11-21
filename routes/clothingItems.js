@@ -1,4 +1,5 @@
 const router = require("express").Router();
+const { celebrate } = require("celebrate");
 
 const {
   createItem,
@@ -13,7 +14,7 @@ const { validateItemId } = require("../middlewares/validation");
 
 const { auth } = require("../middlewares/auth");
 
-router.post("/", auth, createItem);
+router.post("/", auth, celebrate, createItem);
 
 router.get("/", getItems);
 

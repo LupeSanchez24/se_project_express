@@ -6,7 +6,7 @@ const User = require("../models/user");
 const {
   BadRequestError,
   Conflict,
-  Forbidden,
+
   NotFound,
   UnauthorizedError,
 } = require("../utils/errors-classes");
