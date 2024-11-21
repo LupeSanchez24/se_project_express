@@ -1,15 +1,23 @@
-const BAD_REQUEST = 400;
+/*const BAD_REQUEST = 400;
 const NOT_FOUND = 404;
 const INTERNAL_SERVER_ERROR = 500;
 const CONFLICT = 409;
 const UNAUTHORIZEDERRORR = 401;
-const FORBIDDEN = 403;
+const FORBIDDEN = 403;*/
 
-module.exports = {
+/*module.exports = {
   BAD_REQUEST,
   NOT_FOUND,
   INTERNAL_SERVER_ERROR,
   CONFLICT,
   UNAUTHORIZEDERRORR,
   FORBIDDEN,
-};
+};*/
+
+class Error {
+  constructor(message) {
+    this.message = message;
+  }
+}
+
+module.exports = Error;

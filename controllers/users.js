@@ -4,12 +4,12 @@ const bcrypt = require("bcryptjs");
 const User = require("../models/user");
 
 const {
-  BAD_REQUEST,
-  NOT_FOUND,
-  INTERNAL_SERVER_ERROR,
-  CONFLICT,
-  UNAUTHORIZEDERRORR,
-} = require("../utils/erros");
+  BadRequestError,
+  Conflict,
+  Forbidden,
+  NotFound,
+  UnauthorizedError,
+} = require("../utils/errors-classes");
 
 const { JWT_SECRET } = require("../utils/config");
 
@@ -17,13 +17,13 @@ const createUser = (req, res) => {
   const { name, avatar, email, password } = req.body;
 
   if (!email || !password) {
-    return res.status(BAD_REQUEST).send({
-      message: "The 'email' and 'password' fields are required",
-    });
+    return next(
+      new BadRequestError("The 'email' and 'password' fields are required")
+    );
   }
 
   if (!validator.isEmail(email)) {
-    return res.status(BAD_REQUEST).send({ message: "Invalid email format" });
+    return next(new BadRequestError("Invalid email format"));
   }
 
   return User.findOne({ email })
@@ -45,25 +45,22 @@ const createUser = (req, res) => {
     })
     .catch((err) => {
       if (err.code === 11000) {
-        return res.status(CONFLICT).send({ message: "Email already exists" });
+        return next(new Conflict("Email already exists"));
       }
       console.error(err);
       if (err.name === "ValidationError") {
-        return res.status(BAD_REQUEST).send({ message: err.message });
+        return next(new BadRequestError({ message: err.message }));
+      } else {
+        return next(err);
       }
-      return res
-        .status(INTERNAL_SERVER_ERROR)
-        .send({ message: "An error has occurred on the server" });
     });
 };
 
-const login = (req, res) => {
+const login = (req, res, next) => {
   const { email, password } = req.body;
 
   if (!email || !password) {
-    return res
-      .status(BAD_REQUEST)
-      .send({ message: "Email and password are required" });
+    return next(new BadRequestError("Email and password are required"));
   }
 
   return User.findUserByCredentials(email, password)
@@ -76,11 +73,10 @@ const login = (req, res) => {
     .catch((err) => {
       console.error(err);
       if (err.message === "Incorrect email or password") {
-        return res.status(UNAUTHORIZEDERRORR).send({ message: err.message });
+        return next(new UnauthorizedError({ message: err.message }));
+      } else {
+        return next(err);
       }
-      return res
-        .status(INTERNAL_SERVER_ERROR)
-        .send({ message: "An error has occurred on the server" });
     });
 };
 
@@ -99,17 +95,13 @@ const getCurrentUser = (req, res) => {
     })
     .catch((err) => {
       if (err.name === "DocumentNotFoundError") {
-        return res.status(NOT_FOUND).send({ message: "User not found" });
+        return next(new NotFound("User not found"));
       }
       if (err.name === "CastError") {
-        return res
-          .status(BAD_REQUEST)
-          .send({ message: "User ID is not in valid format" });
+        return next(new BadRequestError("User ID is not in valid format"));
+      } else {
+        return next(err);
       }
-      console.error(err);
-      return res
-        .status(INTERNAL_SERVER_ERROR)
-        .send({ message: "Internal server error" });
     });
 };
 
@@ -126,14 +118,13 @@ const updateUser = (req, res) => {
     .then((user) => res.send({ user }))
     .catch((err) => {
       if (err.name === "ValidationError") {
-        return res.status(BAD_REQUEST).send({ message: "Invalid user" });
+        return next(new BadRequestError("Invalid user"));
       }
       if (err.name === "DocumentNotFoundError") {
-        return res.status(NOT_FOUND).send({ message: "User not found" });
+        return next(new NotFound("User not found"));
+      } else {
+        return next(err);
       }
-      return res
-        .status(INTERNAL_SERVER_ERROR)
-        .send({ message: "Internal server error" });
     });
 };
 
