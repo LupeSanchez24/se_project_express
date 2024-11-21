@@ -13,7 +13,7 @@ const {
   NotFound,
 } = require("../utils/errors-classes");
 
-const createItem = (req, res) => {
+const createItem = (req, res, next) => {
   console.log(req);
   console.log(req.body);
 
@@ -33,7 +33,7 @@ const createItem = (req, res) => {
     });
 };
 
-const getItems = (req, res) => {
+const getItems = (req, res, next) => {
   ClothingItem.find({})
     .then((item) => res.status(200).send(item))
     .catch((err) => {
@@ -42,7 +42,7 @@ const getItems = (req, res) => {
     });
 };
 
-const deleteItem = (req, res) => {
+const deleteItem = (req, res, next) => {
   const { itemId } = req.params;
 
   ClothingItem.findById(itemId)
@@ -72,7 +72,7 @@ const deleteItem = (req, res) => {
     });
 };
 
-const likeItem = (req, res) => {
+const likeItem = (req, res, next) => {
   console.log(req.params.itemId);
 
   ClothingItem.findByIdAndUpdate(
@@ -95,7 +95,7 @@ const likeItem = (req, res) => {
     });
 };
 
-const unlikeItem = (req, res) => {
+const unlikeItem = (req, res, next) => {
   ClothingItem.findByIdAndUpdate(
     req.params.itemId,
     { $pull: { likes: req.user._id } },
