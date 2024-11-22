@@ -1,17 +1,10 @@
 const ClothingItem = require("../models/clothingItem");
 
-/*const {
-  BAD_REQUEST,
-  INTERNAL_SERVER_ERROR,
-  NOT_FOUND,
-  FORBIDDEN,
-} = require("../utils/erros");*/
+const { BadRequestError } = require("../utils/errors/bad-request");
 
-const {
-  BadRequestError,
-  Forbidden,
-  NotFound,
-} = require("../utils/errors-classes");
+const { Forbidden } = require("../utils/errors/forbidden");
+
+const { NotFound } = require("../utils/errors/not-found");
 
 const createItem = (req, res, next) => {
   console.log(req);
@@ -66,9 +59,8 @@ const deleteItem = (req, res, next) => {
       }
       if (err.name === "CastError") {
         return next(new BadRequestError("Invalid item ID"));
-      } else {
-        return next(err);
       }
+      return next(err);
     });
 };
 
@@ -89,9 +81,8 @@ const likeItem = (req, res, next) => {
       }
       if (err.name === "CastError") {
         return next(new BadRequestError("Invalid item ID"));
-      } else {
-        return next(err);
       }
+      return next(err);
     });
 };
 
@@ -110,9 +101,9 @@ const unlikeItem = (req, res, next) => {
       }
       if (err.name === "CastError") {
         return next(new BadRequestError("Invalid item ID"));
-      } else {
-        return next(err);
       }
+
+      return next(err);
     });
 };
 

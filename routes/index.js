@@ -5,7 +5,7 @@ const userRouter = require("./users");
 
 const itemRouter = require("./clothingItems");
 
-const { NotFound } = require("../utils/errors-classes");
+const { NotFound } = require("../utils/errors/not-found");
 
 const { createUser, login } = require("../controllers/users");
 
@@ -17,12 +17,12 @@ router.get("/crash-test", () => {
   }, 0);
 });
 
-router.post("/signin", celebrate, login);
-router.post("/signup", celebrate, createUser);
+router.post("/signin", login, celebrate);
+router.post("/signup", createUser, celebrate);
 
 router.use("/users", userRouter);
 
-router.use((req, res) => {
+router.use((next) => {
   next(new NotFound("Router not found"));
 });
 

@@ -14,7 +14,7 @@ const { validateItemId } = require("../middlewares/validation");
 
 const { auth } = require("../middlewares/auth");
 
-router.post("/", auth, celebrate, createItem);
+router.post("/", auth, createItem, celebrate);
 
 router.get("/", getItems);
 

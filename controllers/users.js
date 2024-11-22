@@ -3,13 +3,13 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const User = require("../models/user");
 
-const {
-  BadRequestError,
-  Conflict,
+const { UnauthorizedError } = require("../utils/errors/unauthorized");
 
-  NotFound,
-  UnauthorizedError,
-} = require("../utils/errors-classes");
+const { Conflict } = require("../utils/errors/conflict");
+
+const { BadRequestError } = require("../utils/errors/bad-request");
+
+const { NotFound } = require("../utils/errors/not-found");
 
 const { JWT_SECRET } = require("../utils/config");
 
@@ -50,9 +50,9 @@ const createUser = (req, res, next) => {
       console.error(err);
       if (err.name === "ValidationError") {
         return next(new BadRequestError({ message: err.message }));
-      } else {
-        return next(err);
       }
+
+      return next(err);
     });
 };
 
@@ -74,9 +74,9 @@ const login = (req, res, next) => {
       console.error(err);
       if (err.message === "Incorrect email or password") {
         return next(new UnauthorizedError({ message: err.message }));
-      } else {
-        return next(err);
       }
+
+      return next(err);
     });
 };
 
@@ -99,9 +99,9 @@ const getCurrentUser = (req, res, next) => {
       }
       if (err.name === "CastError") {
         return next(new BadRequestError("User ID is not in valid format"));
-      } else {
-        return next(err);
       }
+
+      return next(err);
     });
 };
 
@@ -122,9 +122,9 @@ const updateUser = (req, res, next) => {
       }
       if (err.name === "DocumentNotFoundError") {
         return next(new NotFound("User not found"));
-      } else {
-        return next(err);
       }
+
+      return next(err);
     });
 };
 

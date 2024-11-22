@@ -1,19 +1,11 @@
 const { Joi, celebrate } = require("celebrate");
 const validator = require("validator");
-const mongoose = require("mongoose");
 
 const validateURL = (value, helpers) => {
   if (validator.isURL(value)) {
     return value;
   }
   return helpers.error("string.uri");
-};
-
-const validateObjectId = (value, helpers) => {
-  if (!mongoose.isValidObjectId(value)) {
-    return helpers.error("any.invalid");
-  }
-  return value;
 };
 
 const validateCardBody = celebrate({
