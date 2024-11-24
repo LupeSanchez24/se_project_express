@@ -1,11 +1,15 @@
 const router = require("express").Router();
-const { celebrate } = require("celebrate");
 
 const userRouter = require("./users");
 
 const itemRouter = require("./clothingItems");
 
 const { NotFound } = require("../utils/errors/not-found");
+
+const {
+  validateLogin,
+  validateUserBody,
+} = require("../middlewares/validation");
 
 const { createUser, login } = require("../controllers/users");
 
@@ -17,12 +21,12 @@ router.get("/crash-test", () => {
   }, 0);
 });
 
-router.post("/signin", login, celebrate);
-router.post("/signup", createUser, celebrate);
+router.post("/signin", validateLogin, login);
+router.post("/signup", validateUserBody, createUser);
 
 router.use("/users", userRouter);
 
-router.use((next) => {
+router.use((req, res, next) => {
   next(new NotFound("Router not found"));
 });
 
